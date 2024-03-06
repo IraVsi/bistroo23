@@ -1,0 +1,31 @@
+{% extends 'base_admin.html' %}
+
+{% block main %}
+<br>
+    <div class="container" style="background-color: white;">
+        {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+        <br>
+        <h3>Menüü detailid: {{ foodmenu }}</h3>
+        <hr>
+
+        {% for food in foodmenu.food_fooditem.all %}
+            <div>Toidunimi: {{ food.food }}</div>
+            <div>Täishind: {{ food.full_price }}</div>
+            <div>Poolik hind: {{ food.half_price }}</div>
+            <div>Näita menüüs: {{ food.chow_in_menu }}</div>
+            <hr>
+        {% endfor %}
+
+    </div>
+        <p>
+            <a href="{% url 'app_admin:foodmenu_update' pk=foodmenu.id %}" role="button"
+               class="btn btn-primary w-100 mb-2">Muuda menüüd</a>
+            <a href="{% url 'app_admin:foodmenu_list' %}" role="button" class="btn btn-secondary w-100">Menüüde nimekiri</a>
+        </p>
+{% endblock main %}

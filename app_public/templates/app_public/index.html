@@ -1,0 +1,62 @@
+{% extends 'base_public.html' %}
+{% load static %}
+{% block content %}
+
+    {% if menuheadlines %}
+
+        <div class="row mb-2">
+            <div class="text-center fixed-top darkdate font-weight-bold ml-3 mr-3">
+                <h4>{{ menuheadlines.0.date|date:'d.m.Y' }}</h4>
+            </div>
+        </div>
+
+        <div class="row mt-4 font-weight-bold">
+            <div class="text-center mt-3">
+                <h3 class="green">
+                    {% if menuheadlines.0.teema %}{{ menuheadlines.0.teema| upper }}{% endif %}</h3>
+                <h3 class="green">
+                    {% if menuheadlines.0.soovitab %}{{ menuheadlines.0.soovitab| upper }}{% endif %}</h3>
+            </div>
+            {% else %}
+            <div class="row p-0">
+                <h4 class="text-center dark-date">
+                    {{ estonian_date }}
+                </h4>
+            </div>
+        </div>
+        {% if not object_list %}
+            <div class="row p-0">
+                <div class="aler alert-info text-center p-1">
+                    # Menüü sisestada
+                </div>
+            </div>
+        {% endif %}
+    {% endif %} {# if headings end #}
+
+    {% if object_list %}
+        {% regroup object_list by menu__category__name as result %}
+        {% for menu in result %}
+            <table class="table-sm w-100 mb-2" style="">
+                <tr class="d-flex dark">
+                    <td class="col-8 text-info {% if forloop.counter == 1 %}text-danger{% endif %}">{{ menu.grouper|upper }}</td>
+                </tr>
+                {% for m in menu.list %}
+                    <tr class="d-flex light">
+                        <td class="col-11 {% if not m.show_in_menu %}myBlur noselect{% endif %} ">{{ m.food|upper }}</td>
+                        <td class="col-1 text-end {% if not m.show_in_menu %}myBlur noselect{% endif %}">
+                            {% if m.full_price == 0 %}
+                                Prae hinna sees
+                            {% else %}
+                                {{ m.full_price }}
+                                {% if m.half_price > 0 %}
+                                    / {{ m.half_price }}
+
+                                {% endif %}
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        {% endfor %}
+    {% endif %}
+{% endblock %}

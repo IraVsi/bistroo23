@@ -1,0 +1,61 @@
+{% extends 'base_admin.html' %}
+
+{% block main %}
+    <body>
+
+
+    <div class="container" style="background-color: white;">
+        <div class="row">
+
+            <div class="col-12 mx-auto mt-2">
+                <p></p>
+                <form action="" method="post" enctype="multipart/form-data" class="form">
+                    {% for hidden_field in form.hidden_fields %}
+                        <div class="col-12">
+                            {{ hidden_field.errors }}
+                            {{ hidden_field }}
+                        </div>
+                    {% endfor %}
+
+                    {% csrf_token %}
+
+                    {{ form.management_form }}
+                    {{ form.non_form_errors }}
+
+                    {% for foodmenu in form.forms %}
+                        <hr>
+                        <h5 class="col-12">
+                            {% if foodmenu.instance.id %}
+                                {{ foodmenu.instance.menu }}
+                            {% else %}
+                                {% if form.forms|length > 1 %}
+                                    Lisa veel üks toit
+                                {% else %}
+                                    Lisa toit
+                                {% endif %}
+                            {% endif %}
+                        </h5>
+                        {% for hidden_field in foodmenu.hidden_fields %}
+                            <div class="col-3">
+                                {{ hidden_field.errors }}
+                                {{ hidden_field }}
+                            </div>
+                        {% endfor %}
+                        <table class="table table-borderless table-sm">
+                            {{ foodmenu.as_table }}
+                        </table>
+                    {% endfor %}
+                    <hr>
+
+                    <div class="col-8">
+                        <button type="submit" value="Update collection" class="btn btn-primary w-100 mb-3">Uuenda menüüd
+                        </button>
+                       <a href="{% url 'app_admin:foodmenu_list' %}" role="button" class="btn btn-secondary w-100">Toitude nimekirja</a>
+                    </div>
+                </form>
+                <br>
+            </div>
+        </div>
+    </div>
+    </body>
+{% endblock main %}
