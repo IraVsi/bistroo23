@@ -1,38 +1,47 @@
 {% extends 'base_admin.html' %}
 {% block main %}
-    <div class="row">
-        <div class="col-8 mx-auto">
-            <h3>Kategooriad</h3>
-            <table class="table table-bordered table-hoover">
-                <thead>
-                <tr class="text-center">
-                    <th>Number</th>
-                    <th>Kategooria nimi</th>
-                    <th>Tegevused</th>
-                </tr>
-                </thead>
-                <tbody>
+    <div class="container col-12 mt-5 mb-5 bg-body-tertiary rounded shadow">
+        <div class="row">
+            <div class="col-8 mx-auto mt-5">
+                <h3>Kategooriad</h3>
+                <div class="alert alert-info">
+                    <span class="pb-0">KAtrgooriad peavad olema just selles järjekorras nagu siin.
+                    Kui soovid uut kategooriat lisada kategooriate vahele, sisesta nr, mis jääb kategooriate vahele, 15, 25, 35 jne.</span>
+                </div>
+
+                {% if messages %}
+                    <div class="message">
+                        {% for message in messages %}
+                        	<p{% if messages.tags %} class="alert alert-danger"{% endif %}>{{ message }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <table class="table table-bordered table-hover shadow">
+                    <thead>
+                    <tr class="text-center">
+                        <th>Number</th>
+                        <th>Kategooria nimi</th>
+                        <th>Tegevused</th>
+                    </tr>
+                    </thead>
+                    <tbody>
                     {% for category in categories %}
                         <tr>
                             <td>{{ category.number }}</td>
                             <td>{{ category.name }}</td>
-
                             <td class="text-center">
-
-                                    <a href="{% url 'app_admin:category_update' pk=category.id %}">Update</a>
-                                    <a href="{% url 'app_admin:category_update' pk=category.id %}" class="text-warning">Detail</a>
-                                <a href="{% url 'app_admin:category_delete' pk=category.id %}" class="text-danger">Delete</a>
+                                <a href="{% url 'app_admin:category_update' pk=category.id %}" class="text-primary">
+                                    <i class="far fa-edit" style="color: #0000ff; margin-right: 10px;" title="Muuda"></i></a>
+                                <a href="{% url 'app_admin:category_delete' pk=category.id %}" class="text-danger">
+                                    <i class="fas fa-trash-alt" style="color: #ff0800;" title="Kustuta"></i></a>
                             </td>
-
                         </tr>
                     {% endfor %}
-                </tbody>
-            </table>
-
-            <a href="{% url 'app_admin:category_create' %}">Lisa uus kategooria</a>
-
+                    </tbody>
+                </table>
+                <a href="{% url 'app_admin:category_create' %}" role="button" class="btn btn-success mb-5">Lisa uus kategooria</a>
+            </div>
         </div>
-
-
     </div>
 {% endblock %}

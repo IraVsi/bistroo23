@@ -1,13 +1,25 @@
 {% extends 'base_admin.html' %}
+{% load static %}
 
 {% block main %}
-	<h4>Lisa uus kategooria</h4>
-    <form method="post">
-            {%  csrf_token %}
-            {{ form.as_p }}
-            <input type="submit" value="Add Category" class="btn btn-primary">
-    </form>
+    <div class="container mt-5 mb-5 bg-body-tertiary rounded shadow">
+        <div class="row">
+            <div class="col-12 mx-auto">
+                <div class="info-box mt-4">
+                    <h3>Lisa uus kategooria</h3>
+                    <div class="alert alert-info">
+                        <span class="pb-0">Kui soovid uut kategooriat lisada olemasolevate kategooriate vahele, siis sisesta number, mis jääb kahe kategooris numbri vahele, nt 15, 25, 35 jne.</span>
+                    </div>
+                </div>
+                <form method="post">
+                    {%  csrf_token %}
+                    <strong>{{ form.as_p }}</strong>
+                    <input type="submit" value="Lisa kategooria" class="btn btn-primary">
+                </form>
 
-    <p><a href="{% url 'app_admin:category_list' %}">Kategooriate nimekiri</a></p>
-    <p><a href="{% url 'app_admin:index' %}">Homepage</a></p>
+                <p><a href="{% url 'app_admin:category_list' %}" class="d-block mt-3">Kategooriate nimekiri</a></p>
+                <p><a href="{% url 'app_admin:index' %}" class="d-block">Avaleht</a></p>
+            </div>
+        </div>
+    </div>
 {% endblock %}

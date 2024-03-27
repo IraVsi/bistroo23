@@ -16,6 +16,9 @@
                     {% if menuheadlines.0.teema %}{{ menuheadlines.0.teema| upper }}{% endif %}</h3>
                 <h3 class="green">
                     {% if menuheadlines.0.soovitab %}{{ menuheadlines.0.soovitab| upper }}{% endif %}</h3>
+                <h3 class="blue">
+                    {% if menuseheaflines.0.valmistas %}{{ memyheadlines.0.valmistas| upper }}{% endif %}
+                </h3>
             </div>
             {% else %}
             <div class="row p-0">
@@ -27,7 +30,7 @@
         {% if not object_list %}
             <div class="row p-0">
                 <div class="aler alert-info text-center p-1">
-                    # Menüü sisestada
+                    # Menüü ei ole sisestatud
                 </div>
             </div>
         {% endif %}
@@ -38,19 +41,19 @@
         {% for menu in result %}
             <table class="table-sm w-100 mb-2" style="">
                 <tr class="d-flex dark">
-                    <td class="col-8 text-info {% if forloop.counter == 1 %}text-danger{% endif %}">{{ menu.grouper|upper }}</td>
+                    {# <td class="col-8 text-info {% if forloop.counter == 1 %}text-danger{% endif %}">{{ menu.grouper|upper }}</td> #}
+                    <td class="col-8 text-info {% if menu.grouper|upper == 'KOOLILÕUNA (V.A SESSIOONÕPE)' %}text-danger{% endif %}">{{ menu.grouper|upper }}</td>
                 </tr>
                 {% for m in menu.list %}
                     <tr class="d-flex light">
                         <td class="col-11 {% if not m.show_in_menu %}myBlur noselect{% endif %} ">{{ m.food|upper }}</td>
-                        <td class="col-1 text-end {% if not m.show_in_menu %}myBlur noselect{% endif %}">
+                        <td class="col-1 text-end {% if not m.show_in_menu %}myBlur noselect{% endif %} ">
                             {% if m.full_price == 0 %}
                                 Prae hinna sees
                             {% else %}
                                 {{ m.full_price }}
                                 {% if m.half_price > 0 %}
-                                    / {{ m.half_price }}
-
+                                    /{{ m.half_price }}
                                 {% endif %}
                             {% endif %}
                         </td>

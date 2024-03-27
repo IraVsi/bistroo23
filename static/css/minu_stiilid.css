@@ -1,18 +1,19 @@
-
+{% load static %}
 
 * {
 	font-size: 18px;
 }
 body {
 
-	background-image: url("../pictures/menu_background_picture.jpg");
+	/* DIANA */
+	background-image: url("../pictures/food.jpg");
 	background-repeat: repeat;
 	font-family: 'Patrick Hand', cursive;
 }
-.koolilouna {
+.koolilouna {		
 	color: red;
 	/*background-color: #CCFFCC; */
-	/*font-family: "Comic Sans MS", Verdana;*/
+	/*font-family: "Comic Sans MS", Verdana;*/	
 }
 .teemapaev {
 	color: blue;

@@ -1,9 +1,9 @@
 import urllib.parse
-from datetime import datetime
+from datetime import datetime, date
 from urllib.request import urlopen
 import json
 
-from django.db.models import Count, Q
+from django.db.models import Count, Q, ProtectedError
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.views.generic import (TemplateView, ListView, CreateView, UpdateView, DeleteView, DetailView, FormView)
@@ -12,6 +12,7 @@ from django.contrib import messages
 from django.urls import reverse
 from django.views.generic.detail import SingleObjectMixin
 from django.http import HttpResponseRedirect, Http404
+from django.utils import timezone
 
 from .forms import *
 from .models import *
@@ -25,7 +26,7 @@ class ManagerRequiredMixin(UserPassesTestMixin):
 
 
 class HomeView(ManagerRequiredMixin, TemplateView):
-    template_name = 'app_admin/index.html'
+    template_name = 'app_admin/menuHeadlines_list.html'
 
 
 class CategoryListView(ManagerRequiredMixin, ListView):
@@ -38,7 +39,7 @@ class CategoryCreateView(ManagerRequiredMixin, CreateView):
     template_name = 'app_admin/category_form_create.html'
     model = Category
     success_url = reverse_lazy('app_admin:category_list')
-    # form_class = Category
+    # form_class = Category  või CategoryUpdateForm?
     fields = '__all__'
 
 
@@ -55,20 +56,27 @@ class CategoryDeleteView(ManagerRequiredMixin, DeleteView):
     model = Category
     success_url = reverse_lazy('app_admin:category_list')
 
+    def post(self, request, *args, **kwargs):
+        try:
+            return self.delete(request, *args, **kwargs)
+        except ProtectedError:
+            messages.warning(request, "Seda kategooriat ei saa kustutada!")
+            return render(request, "app_admin/category_list.html", context={'categories': Category.objects.all()})
+
 
 class MenuHeadlinesView(ManagerRequiredMixin, CreateView):
     model = MenuHeadlines
     form_class = MenuHeadlinesForm
-    success_url = reverse_lazy('app_public:index')
+    success_url = reverse_lazy('app_public:menuHeadlines_list')
 
 
 class MenuHeadlinesListView(ManagerRequiredMixin, ListView):
     template_name = 'app_admin/menuHeadlines_list.html'
     model = MenuHeadlines
     #queryset = MenuHeadlines.objects.order_by('-date')  # Result ordered by kuupäev
-    #queryset = MenuHeadlines.objects.all()  # Result ordered mis on juba modeliga sorteeritud ja sellepärast pole meil nedi ridu vaja
+    #queryset = MenuHeadlines.objects.all()  # Result ordered mis on juba modeliga sorteeritud, ei ole vaja neid ridu
 
-    context_object_name = 'menuHeadlines'  # see tuleb viewst
+    context_object_name = 'menuHeadlines'  # tuleb view'st
     paginate_by = 10
 
 
@@ -81,9 +89,22 @@ class MenuHeadlinesUpdateView(ManagerRequiredMixin, UpdateView):
     form_class = MenuHeadlinesUpdateForm
     context_object_name = 'menuHeadline'
 
+    def post(self, request, *args, **kwargs):
+        my_data = request.POST
+        my_data = my_data['date']
+        print(my_data)
+        try:
+            new_date = datetime.datetime.strptime(my_data, '%d.%m.%Y').strftime('%d.%m.%Y')
+            my_data._mutable = True
+            my_data['date'] = new_date
+            my_data._mutable = False
+        except ValueError:
+            return super().post(request, *args, **kwargs)
+        return super().post(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['update'] = True  # See võimaldab mallis eristada vormi lisamise ja muutmise vahel
+        context['update'] = True  # Võimaldab eristada vormi lisamise/muutmise vahel mallis
         return context
 
     def form_valid(self, form):
@@ -104,6 +125,21 @@ class MenuHeadlinesCreateView(ManagerRequiredMixin, CreateView):
     success_url = reverse_lazy('app_admin:menuHeadlines_list')
     form_class = MenuHeadlinesForm
 
+    def post(self, request, *args, **kwargs):
+        my_data = request.POST  # Vormi info muutujasse my_data
+        my_date = my_data['date']  # my_datast võtta ainult kuupäev
+        print(my_date)  # kas kommenteerida välja?
+        try:  # PROOVI järgnevat
+            # Proovi muuta kuupäev pp.kk.aaa => aaa-kk-pp
+            new_date = datetime.datetime.strptime(my_date, '%d.%m.%Y').strftime('%Y-%m-%d')
+            #print(new_date)
+            my_data._mutable = True  # lubatuple (listi eri vorm) muutmine
+            my_data['date'] = new_date  # Anna kuupäevale uus väärtus (aaaa-kk-pp)
+            my_data._mutable = False  # Keela tuple muutmine
+        except ValueError:  # Kui ei õnnestunud
+            return super().post(request, *args, **kwargs)  # Tagastab errori
+        return super().post(request, *args, **kwargs)  # Õnnestus, tagastab ok asja
+
 
 class FoodMenuCreateView(ManagerRequiredMixin, CreateView):
     model = FoodMenu
@@ -120,15 +156,21 @@ class FoodMenuCreateView(ManagerRequiredMixin, CreateView):
 
         return super().form_valid(form)
 
-    def form_valid(self, form):
-        messages.add_message(self.request, messages.SUCCESS, 'The menu has been added successfully.')
-        return super().form_valid(form)
+    def get_form(self, *args, **kwargs):
+        form = super(FoodMenuCreateView).get_form(*args, **kwargs)
+        form.fields['date'].queryset = MenuHeadlines.objects.all().filter(date__gte=date.today())
+        return form
 
 
 class FoodMenuListView(ManagerRequiredMixin, ListView):
     model = FoodMenu
     template_name = 'app_admin/foodmenu_list.html'
     paginate_by = 10
+
+    def get_context_data(self, **kwargs):
+        context = super(FoodMenuListView, self).get_context_data(**kwargs)
+        # context['today] = timezone.localdate()
+        return context
 
 
 class FoodMenuUpdateView(ManagerRequiredMixin, SingleObjectMixin, FormView):
@@ -153,7 +195,7 @@ class FoodMenuUpdateView(ManagerRequiredMixin, SingleObjectMixin, FormView):
         messages.add_message(
             self.request,
             messages.SUCCESS,
-            'Changes were saved.'
+            'Muudatused salvestatud.'
         )
 
         return HttpResponseRedirect(self.get_success_url())
@@ -254,9 +296,4 @@ class OldMenuListView(ManagerRequiredMixin, ListView):
         }
 
         return context
-
-    def custom500(request, exception):
-        return render(request, '500.html', status=500)
-
-    def custom404(request, exception):
-        return render(request, '404.html', status=404)
+    

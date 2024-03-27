@@ -42,3 +42,9 @@ class HomeViewPublic(TemplateView):
         }
 
         return context
+
+def custom500 (request):
+    return render(request, '500.html', status=500)
+
+def custom404 (request, exception):
+    return render(request, '404.html', status=404)

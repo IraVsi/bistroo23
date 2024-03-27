@@ -1,34 +1,49 @@
 {% extends 'base_admin.html' %}
 {% block main %}
-    <div class="row col-12 mx-auto mt-2">
-        <h2>Otsingu tulemused</h2>
-        {% if object_list %}
+    <div class="container col-12 mt-5 mb-5  bg-body-tertiary rounded shadow">
+        <div class="row">
+            <div class="col-8 mx-auto mt-5 mb-5">
+                <h2>Otsingu tulemused</h2>
+                <div class="alert alert-info mt-2" role="alert">
+                    <ul>
+                        <li>Siin kuvatakse kõik kuupäevad mil otsitud toit oli menüüs.</li>
+                        <li> Kui vajutad kuupäeva lingile näed kogu menüüd.</li>
+                    </ul>
+                </div>
+                {% if object_list %}
 
-            <table class="table table-bordered table-hover">
-                <thead>
-                <tr class="text-center">
-                    <th class="col-1">Kuupäev</th>
-                    <th class="col-3">Kategooria</th>
-                    <th>Toidunimi</th>
-                    <th class="col-1">Suur hind</th>
-                    <th class="col-1">Väike hind</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for food in object_list %}
-                    <tr>
-                        <td class="text-center"><a href="">{{ food.menu.date }}</a></td>
-                        <td>{{ food.menu.category }}</td>
-                        <td>{{ food.food }}</td>
-                        <td class="text-end">{{ food.full_price }}</td>
-                        <td class="text-end">{% if food.half_price > 0 %}{{ food.half_price }}{% endif %}</td>
-                    </tr>
-                {% endfor %}
+                    <table class="table table-bordered table-hover shadow">
+                        <thead>
+                        <tr class="text-center">
+                            <th class="col-1">Kuupäev</th>
+                            <th class="col-3">Kategooria</th>
+                            <th>Toidunimi</th>
+                            <th class="col-1">Suur hind</th>
+                            <th class="col-1">Väike hind</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for food in object_list %}
+                            <tr>
+                                <td class="text-center"><a
+                                        href="{% url 'app_admin:history_menu' date=food.menu.date %}">{{ food.menu.date }}</a>
+                                </td>
+                                <td>{{ food.menu.category }}</td>
+                                <td>{{ food.food }}</td>
+                                <td class="text-end">{{ food.full_price }}</td>
+                                <td class="text-end">{% if food.half_price > 0 %}{{ food.half_price }}{% endif %}</td>
+                            </tr>
+                        {% endfor %}
 
-                </tbody>
+                        </tbody>
 
-            </table>
+                    </table>
 
+                {% endif %}
+            </div>
+        </div>
+        {% if page_obj.paginator.num_pages > 1 %}
+            {% include 'pagination.html' %}
         {% endif %}
     </div>
 
